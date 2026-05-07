@@ -1,1 +1,92 @@
- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Freshness Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        h1 { color: #2e7d32; }
+        .upload-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+        }
+        button:hover { background-color: #1b5e20; }
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .fresh { color: #2e7d32; }
+        .notfresh { color: #c62828; }
+    </style>
+</head>
+<body>
+    <div class="upload-box">
+        <h1>🍎 Fruit Freshness Detector</h1>
+        <p>Upload a fruit image to check if it's fresh or not</p>
+        <input type="file" id="fileInput" accept="image/*"><br>
+        <button onclick="predict()">Check Freshness</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function predict() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '⚠️ Please select an image first';
+                return;
+            }
+
+            resultDiv.innerHTML = '⏳ Analyzing...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `❌ Error: ${data.error}`;
+                } else {
+                    const cssClass = data.prediction === 'Fresh' ? 'fresh' : 'notfresh';
+                    const emoji = data.prediction === 'Fresh' ? '✅' : '❌';
+                    resultDiv.innerHTML = `
+                        <p class="${cssClass}">
+                            ${emoji} ${data.prediction}
+                        </p>
+                        <p>Confidence: ${data.confidence}%</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '❌ Something went wrong. Try again.';
+            }
+        }
+    </script>
+</body>
+</html>
