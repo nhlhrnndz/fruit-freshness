@@ -47,10 +47,10 @@ def predict():
         prediction = model.predict(processed_image)[0][0]
 
         if prediction > 0.5:
-            result = "Fresh"
+            result = "Not Fresh"
             confidence = float(prediction) * 100
         else:
-            result = "Not Fresh"
+            result = "Fresh"
             confidence = float(1 - prediction) * 100
 
         return jsonify({
@@ -67,4 +67,4 @@ def health_check():
     return jsonify({'status': 'healthy'}), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False) 
+    app.run(host='0.0.0.0', port=5000, debug=False)
